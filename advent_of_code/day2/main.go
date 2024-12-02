@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -11,11 +12,13 @@ import (
 func main() {
 	reports := getValues(utils.ReadData("day2_sample"))
 	numSafe := countSafe(reports)
-	fmt.Printf("Num safe sample: %v\n", numSafe)
+	numSafeDamp := countSafeWithDampener(reports)
+	fmt.Printf("Num safe sample: %v\nNum safe sample damp: %v\n", numSafe, numSafeDamp)
 
 	reportsFinal := getValues(utils.ReadData("day2_data"))
 	numSafeFinal := countSafe(reportsFinal)
-	fmt.Printf("Num safe sample: %v\n", numSafeFinal)
+	numSafeFinalDamp := countSafeWithDampener(reportsFinal)
+	fmt.Printf("Num safe: %v\nNum safe damp: %v\n", numSafeFinal, numSafeFinalDamp)
 }
 
 func getValues(lines []string) [][]int {
@@ -48,10 +51,32 @@ func isSafe(levels []int) bool {
 
 }
 
+func isSafeWithDampener(levels []int) bool {
+	if isSafe(levels) {
+		return true
+	}
+	for i := 0; i < len(levels); i++ {
+		if isSafe(slices.Concat(levels[:i], levels[i+1:])) {
+			return true
+		}
+	}
+	return false
+}
+
 func countSafe(reports [][]int) int {
 	count := 0
 	for _, report := range reports {
 		if isSafe(report) {
+			count++
+		}
+	}
+	return count
+}
+
+func countSafeWithDampener(reports [][]int) int {
+	count := 0
+	for _, report := range reports {
+		if isSafeWithDampener(report) {
 			count++
 		}
 	}
