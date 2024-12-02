@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func readData(fileName string) []string {
+func ReadData(fileName string) []string {
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
