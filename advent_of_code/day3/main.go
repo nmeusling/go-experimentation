@@ -4,24 +4,30 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/nmeusling/go-experimentation/advent_of_code/utils"
 )
 
 func main() {
-	sample := utils.ReadData("day3_sample")
+	sample := strings.Join(utils.ReadData("day3_sample"), "")
 	fmt.Printf("Sample Total = %v\n", calculate(getMatches(sample)))
-	data := utils.ReadData("day3_data")
+	data := strings.Join(utils.ReadData("day3_data"), "")
 	fmt.Printf("Total = %v\n", calculate(getMatches(data)))
+	sample2 := strings.Join(utils.ReadData("day3_sample2"), "")
+	fmt.Printf("Sample Total = %v\n", calculate(getMatches(removeDisabled(sample2))))
+	data = strings.Join(utils.ReadData("day3_data"), "")
+	fmt.Printf("Total = %v\n", calculate(getMatches(removeDisabled(data))))
 }
 
-func getMatches(fileLines []string) []string {
+func removeDisabled(data string) string {
+	re := regexp.MustCompile(`don't[(][)].*?do[(][)]`)
+	return re.ReplaceAllString(data, "")
+}
+
+func getMatches(data string) []string {
 	re := regexp.MustCompile(`mul[(]\d+,\d+[)]`)
-	matches := make([]string, 0)
-	for _, line := range fileLines {
-		matches = append(matches, re.FindAllString(line, -1)...)
-	}
-	return matches
+	return re.FindAllString(data, -1)
 }
 
 func calculate(mulInstructions []string) int {
