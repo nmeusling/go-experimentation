@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/nmeusling/go-experimentation/advent_of_code/utils"
 )
@@ -9,8 +10,10 @@ import (
 func main() {
 	sample := utils.ReadData("day4_sample")
 	fmt.Println(countXmas(sample))
+	fmt.Println(countMasCrosses(sample))
 	grid := utils.ReadData("day4_data")
 	fmt.Println(countXmas(grid))
+	fmt.Println(countMasCrosses(grid))
 
 }
 
@@ -60,6 +63,26 @@ func countXmas(grid []string) int {
 				if down_right == target || down_right == target_reversed {
 					count++
 				}
+			}
+		}
+	}
+	return count
+}
+
+// look for a; get 4 diagonals, 2 s , 2 m, same row or column
+func countMasCrosses(grid []string) int {
+	count := 0
+	for i, row := range grid {
+		for j := range row {
+			if string(grid[i][j]) != "A" {
+				continue
+			}
+			if i-1 >= 0 && i+1 < len(grid) && j-1 >= 0 && j+1 < len(row) {
+				corners := string(grid[i-1][j-1]) + string(grid[i-1][j+1]) + string(grid[i+1][j-1]) + string(grid[i+1][j+1])
+				if strings.Count(corners, "S") != 2 || strings.Count(corners, "M") != 2 || corners[1] == corners[2] {
+					continue
+				}
+				count += 1
 			}
 		}
 	}
