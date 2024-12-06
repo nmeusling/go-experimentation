@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/nmeusling/go-experimentation/advent_of_code/utils"
 )
@@ -17,6 +18,9 @@ type location struct {
 type guard struct {
 	loc       location
 	direction direction
+	startLoc  location
+	startDir  direction
+	steps     int
 }
 
 type direction struct {
@@ -34,13 +38,54 @@ func (d direction) rotate() direction {
 }
 
 func main() {
-	grid := utils.ReadData("day6_data")
-	var g = guard{findStartingLocation(grid), up}
-	visitedLocations := make(map[location]struct{})
+	fmt.Println(solvePart1("day6_sample"))
+	fmt.Println(solvePart1("day6_data"))
+	fmt.Println(solvePart2("day6_sample"))
+	fmt.Println(solvePart2("day6_data"))
+}
+func solvePart1(fileName string) int {
+	grid := utils.ReadData(fileName)
+	start := findStartingLocation(grid)
+	var g = guard{start, up, start, up, 0}
+	visitedLocations := make(map[location][]direction)
 	for !outOfBounds(grid, g.loc) {
 		g = g.move(grid, visitedLocations)
 	}
-	fmt.Println(len(visitedLocations))
+	return len(visitedLocations)
+}
+func solvePart2(fileName string) int {
+	grid := utils.ReadData(fileName)
+	start := findStartingLocation(grid)
+	var g = guard{start, up, start, up, 0}
+	return countClosed(grid, g)
+}
+
+func (g *guard) resetPosition() {
+	g.loc = g.startLoc
+	g.direction = g.startDir
+	g.steps = 0
+}
+func countClosed(grid []string, g guard) int {
+	count := 0
+	for i := range grid {
+		for j := range grid[i] {
+			g.resetPosition()
+			// can't use guards starting position
+			if g.startLoc.row == i && g.startLoc.column == j {
+				continue
+			}
+			if string(grid[i][j]) == blockedLocation {
+				continue
+			}
+			grid[i] = grid[i][:j] + blockedLocation + grid[i][j+1:]
+			if isClosedLoop(grid, g) {
+				count++
+			}
+			grid[i] = grid[i][:j] + "." + grid[i][j+1:]
+
+		}
+	}
+	return count
 }
 
 func findStartingLocation(grid []string) location {
@@ -66,13 +111,40 @@ func (g guard) getNextLocation() location {
 	}
 	return location{g.loc.row, g.loc.column - 1}
 }
+func isClosedLoop(grid []string, g guard) bool {
+	visited := make(map[location][]direction)
+	oob := outOfBounds(grid, g.loc)
+	returned := g.hasReturned()
+	for !oob && !returned {
+		g = g.move(grid, visited)
+		if outOfBounds(grid, g.loc) {
+			return false
+		}
+		if g.hasReturned() {
+			return true
+		}
+		if g.alreadyVisited(visited) {
+			return true
+		}
+	}
+	return false
+}
+
 func outOfBounds(grid []string, l location) bool {
 	return l.column >= len(grid[0]) || l.column < 0 || l.row >= len(grid) || l.row < 0
 }
 
-func (g guard) move(grid []string, visited map[location]struct{}) guard {
+func (g guard) alreadyVisited(visited map[location][]direction) bool {
+	return slices.Contains(visited[g.loc], g.direction)
+}
+func (g guard) hasReturned() bool {
+	return g.steps > 0 && g.loc == g.startLoc && g.direction == g.startDir
+}
+
+func (g guard) move(grid []string, visited map[location][]direction) guard {
 	nextLocation := g.getNextLocation()
-	visited[g.loc] = struct{}{}
+	g.steps++
+	visited[g.loc] = append(visited[g.loc], g.direction)
 	if !outOfBounds(grid, nextLocation) && string(grid[nextLocation.row][nextLocation.column]) == blockedLocation {
 		g.direction = g.direction.rotate()
 		return g
