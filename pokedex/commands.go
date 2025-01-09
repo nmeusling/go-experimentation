@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-
-	"github.com/nmeusling/go-experimentation/pokedex/internal/pokeapi"
 )
 
 func commandExit(cfg *config) error {
@@ -25,13 +23,17 @@ func commandHelp(cfg *config) error {
 }
 
 func commandMap(cfg *config) error {
-	locationResponse, err := pokeapi.GetLocationAreas(cfg.Next)
+	locationResponse, err := cfg.pokeapiClient.GetLocationAreas(cfg.Next)
 	if err != nil {
 		return err
 	}
 	cfg.Next = locationResponse.Next
 	if locationResponse.Previous != nil {
 		cfg.Previous = *locationResponse.Previous
+	}
+
+	for _, loc := range locationResponse.Results {
+		fmt.Println(loc.Name)
 	}
 	return nil
 }
@@ -41,7 +43,7 @@ func commandMapb(cfg *config) error {
 		fmt.Println("you're on the first page")
 		return nil
 	}
-	locationResponse, err := pokeapi.GetLocationAreas(cfg.Previous)
+	locationResponse, err := cfg.pokeapiClient.GetLocationAreas(cfg.Previous)
 	if err != nil {
 		return err
 	}
@@ -50,6 +52,10 @@ func commandMapb(cfg *config) error {
 		cfg.Previous = *locationResponse.Previous
 	} else {
 		cfg.Previous = ""
+	}
+
+	for _, loc := range locationResponse.Results {
+		fmt.Println(loc.Name)
 	}
 	return nil
 }

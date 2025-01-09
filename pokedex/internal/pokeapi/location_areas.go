@@ -2,15 +2,25 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
 
-func GetLocationAreas(pageUrl string) (locationAreaResponse, error) {
+func (c *Client) GetLocationAreas(pageUrl string) (locationAreaResponse, error) {
 	url := baseURL + "/location-area"
 	if pageUrl != "" {
 		url = pageUrl
+	}
+
+	// Value is found in cache
+	if val, ok := c.cache.Get(url); ok {
+		locationsResponse := locationAreaResponse{}
+		err := json.Unmarshal(val, &locationsResponse)
+		if err != nil {
+			return locationAreaResponse{}, err
+		}
+		return locationsResponse, nil
+
 	}
 	res, err := http.Get(url)
 	if err != nil {
@@ -26,8 +36,6 @@ func GetLocationAreas(pageUrl string) (locationAreaResponse, error) {
 	if err != nil {
 		return locationAreaResponse{}, err
 	}
-	for _, l := range locationResponse.Results {
-		fmt.Println(l.Name)
-	}
+	c.cache.Add(url, data)
 	return locationResponse, nil
 }
