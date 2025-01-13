@@ -19,12 +19,13 @@ func startRepl(cfg *config) {
 		if len(clean) == 0 {
 			continue
 		}
+		parameters := clean[1:]
 		command, ok := getCommands()[clean[0]]
 		if !ok {
 			fmt.Println("Unknown command")
 			continue
 		}
-		err := command.callback(cfg)
+		err := command.callback(cfg, parameters)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -64,6 +65,11 @@ func getCommands() map[string]cliCommand {
 			description: "Displays previous page of locations",
 			callback:    commandMapb,
 		},
+		"explore": {
+			name:        "explore",
+			description: "Displays pokemon present in a given location",
+			callback:    commandExplore,
+		},
 	}
 
 }
@@ -71,7 +77,7 @@ func getCommands() map[string]cliCommand {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, []string) error
 }
 
 type config struct {
