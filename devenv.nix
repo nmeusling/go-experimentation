@@ -10,13 +10,16 @@
   # https://devenv.sh/languages/
   # languages.rust.enable = true;
   languages = {
-    go.enable = true;
+    go =
+      {
+        enable = true;
+        enableHardeningWorkaround = true;
+      };
     javascript = {
       enable = true;
       npm.enable = true;
     };
   };
-
   # https://devenv.sh/processes/
   # processes.cargo-watch.exec = "cargo-watch";
 
