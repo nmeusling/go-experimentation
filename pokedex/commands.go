@@ -100,9 +100,17 @@ func commandCatch(cfg *config, parameters []string) error {
 	catchTreshold := 50
 	catchResult := rand.Intn(baseExperience) < catchTreshold
 	if catchResult {
-		fmt.Printf("You caught %s", pokemonName)
-		pokeStats := pokemonStats{}
+		fmt.Printf("You caught %s\n", pokemonName)
+		pokeStats := map[string]int{}
 		pokeTypes := []string{}
+		for _, pokeType := range pokemonData.Types {
+			pokeTypes = append(pokeTypes, pokeType.Type.Name)
+		}
+		for _, pokeStat := range pokemonData.Stats {
+			name := pokeStat.Stat.Name
+			value := pokeStat.BaseStat
+			pokeStats[name] = value
+		}
 		cfg.pokedex[pokemonName] = pokemon{
 			pokemonData.Name,
 			pokemonData.BaseExperience,
@@ -132,6 +140,6 @@ func commandInspect(cfg *config, parameters []string) error {
 		return nil
 	}
 	fmt.Printf("Inspecting %s\n", pokeData.name)
-	fmt.Println(pokeData.height, pokeData.weight)
+	pokeData.printPokemonData()
 	return nil
 }

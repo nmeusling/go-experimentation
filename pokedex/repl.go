@@ -102,15 +102,20 @@ type pokemon struct {
 	baseExperience int
 	weight         int
 	height         int
-	stats          pokemonStats
+	stats          map[string]int
 	types          []string
 }
 
-type pokemonStats struct {
-	hp             int
-	attack         int
-	defense        int
-	specialAttack  int
-	specialDefense int
-	speed          int
+func (p pokemon) printPokemonData() {
+	fmt.Printf("Name: %s\n", p.name)
+	fmt.Printf("Height: %v\n", p.height)
+	fmt.Printf("Weight: %v\n", p.weight)
+	fmt.Println("Stats:")
+	for name, val := range p.stats {
+		fmt.Printf("  -%s: %v\n", name, val)
+	}
+	fmt.Println("Types:")
+	for _, pokeType := range p.types {
+		fmt.Printf("  - %s\n", pokeType)
+	}
 }
