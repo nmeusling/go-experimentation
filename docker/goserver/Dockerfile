@@ -8,5 +8,6 @@ RUN go build -o goserver
 
 # FROM debian:stable-slim
 FROM scratch
+ENV PORT=8991
 COPY --from=builder /go/goserver /bin/goserver
 ENTRYPOINT ["/bin/goserver"]

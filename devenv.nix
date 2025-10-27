@@ -1,23 +1,29 @@
-{ pkgs, lib, config, inputs, ... }:
-
 {
+  pkgs,
+  lib,
+  config,
+  inputs,
+  ...
+}: {
   # https://devenv.sh/basics/
   env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = [ pkgs.git pkgs.jq ];
+  packages = [pkgs.git pkgs.jq];
 
   # https://devenv.sh/languages/
   # languages.rust.enable = true;
   languages = {
-    go =
-      {
-        enable = true;
-        enableHardeningWorkaround = true;
-      };
+    go = {
+      enable = true;
+      enableHardeningWorkaround = true;
+    };
     javascript = {
       enable = true;
       npm.enable = true;
+    };
+    python = {
+      enable = true;
     };
   };
   # https://devenv.sh/processes/
